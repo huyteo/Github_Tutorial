@@ -6,10 +6,11 @@ import { Octicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import Loading from '../components/Loading';
+import CustomeKeyboardView from '../components/CustomeKeyboardView';
 
 export default function signIn() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const emailRef = useRef("");
   const passwordRef = useRef("");
@@ -23,7 +24,7 @@ export default function signIn() {
       // login process
   }
   return (
-    <View className="flex-1">
+    <CustomeKeyboardView>
         <StatusBar style='dark'/>
         <View style={{paddingTop: hp(8), paddingHorizontal: wp(5)}} className="flex-1 gap-12">
           {/* signIn image */}
@@ -67,15 +68,15 @@ export default function signIn() {
                   <View>
                     {
                       loading? (
-                          <View className="flex-row justify-center">
-                              <Loading size={hp(8)}/>
-                          </View>
+                        <View className="flex-row justify-center">
+                          <Loading size={hp(8)}/>
+                        </View>
                       ):(
-                          <TouchableOpacity onPress={handleLogin} style={{backgroundColor: '#3333FF', borderRadius: 10, justifyContent: 'center', alignItems: 'center', height: hp(6.5)}} >
-                              <Text style={{fontSize: hp(2.7)}} className="text-white font-bold tracking-wider">
-                                  Sign In
-                              </Text>
-                          </TouchableOpacity>
+                        <TouchableOpacity onPress={handleLogin} style={{backgroundColor: '#3333FF', borderRadius: 10, justifyContent: 'center', alignItems: 'center', height: hp(6.5)}} >
+                            <Text style={{fontSize: hp(2.7)}} className="text-white font-bold tracking-wider">
+                                Sign In
+                            </Text>
+                        </TouchableOpacity>
                       )
                     }
                   </View>
@@ -95,6 +96,6 @@ export default function signIn() {
               
           </View>
         </View>
-    </View>
+      </CustomeKeyboardView>
   )
 }
