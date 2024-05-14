@@ -7,9 +7,11 @@ import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import Loading from '../components/Loading';
 import CustomeKeyboardView from '../components/CustomeKeyboardView';
+import { useAuth } from './context/authContext';
 
 export default function signUp() {
   const router = useRouter();
+  const {register} =useAuth();
   const [loading, setLoading] = useState(false);
 
   const emailRef = useRef("");
@@ -21,6 +23,15 @@ export default function signUp() {
       if(!emailRef.current || !passwordRef.current || !usernameRef.current || !profileRef.current) {
         Alert.alert('Sign Up', "Please fill all the field!");
         return;
+      }
+      setLoading(true);
+
+      let response = await register(emailRef.current, passwordRef.current, usernameRef.current, profileRef.current);
+      setLoading(false);
+
+      console.log('got result: ', response);
+      if(!response.success) {
+        Alert.alert('Sign Up', response.msg);
       }
 
       // register process
