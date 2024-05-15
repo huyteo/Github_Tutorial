@@ -10,7 +10,7 @@ export default function home() {
   console.log('users data: ', user);
 
   return (
-    <View>
+    <View className="flex-1 bg-white">
       <Text>home</Text>
       {/* <Button title="Sign Out" onPress={handleLogout}/> */}
       <Pressable onPress={handleLogout}>
