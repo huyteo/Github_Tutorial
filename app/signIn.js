@@ -7,10 +7,12 @@ import { useRouter } from 'expo-router';
 import { useRef } from 'react';
 import Loading from '../components/Loading';
 import CustomeKeyboardView from '../components/CustomeKeyboardView';
+import { useAuth } from './context/authContext';
 
 export default function signIn() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const {login} = useAuth();
 
   const emailRef = useRef("");
   const passwordRef = useRef("");
@@ -20,8 +22,13 @@ export default function signIn() {
         Alert.alert('Sign In', "Please fill all the field!");
         return;
       }
-
-      // login process
+      setLoading(true);
+      const response = await login(emailRef.current, passwordRef.current);
+      setLoading(false);
+      console.log('sign in response: ', response);
+      if(!response.success) {
+        Alert.alert('Sign In', response.msg);
+      }
   }
   return (
     <CustomeKeyboardView>
