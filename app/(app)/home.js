@@ -5,10 +5,13 @@ import { StatusBar } from 'expo-status-bar';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import ChatList from '../../components/ChatList';
 import Loading from '../../components/Loading';
+import { doc, getDocs, query, where } from 'firebase/firestore';
+import { useRef } from '../firebaseConfig';
+
 
 export default function Home() {
   const { logout, user } = useAuth();
-  const [users, setUsers] = useState([1, 2, 3]);
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     if (user?.uid) {
@@ -18,7 +21,16 @@ export default function Home() {
 
   const getUsers = async () => {
     // fetch users
+    const q = query(useRef, where('userId', "!=", user?.uid));
+
+    const querySnapshot = await getDocs(q);
+    let data = [];
+    querySnapshot.forEach(doc=>{
+      data.push({...doc.data()});
+    });
+    setUsers(data);
   };
+
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>

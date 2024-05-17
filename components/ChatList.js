@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList } from 'react-native';
 import ChatItem from './ChatItem';
-import { useRoute } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 
 export default function ChatList({ users }) {
