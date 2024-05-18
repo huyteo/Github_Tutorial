@@ -36,7 +36,7 @@ export default function ChatItem({ item, router, noBorder, currentUser }) {
 
   const renderTime = ()=>{
     if(lastMessage) {
-      let date = lastMessage?.createdAt;
+      let date = lastMessage?.createAt;
       return formatDate(new Date(date?.seconds * 1000));
     }
 
