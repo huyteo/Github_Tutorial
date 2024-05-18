@@ -3,7 +3,7 @@ import { View, Text, FlatList } from 'react-native';
 import ChatItem from './ChatItem';
 import { useRouter } from 'expo-router';
 
-export default function ChatList({ users }) {
+export default function ChatList({ users, currentUser }) {
   const router = useRouter();
   return (
     <View style={{ flex: 1 }}>
@@ -16,6 +16,7 @@ export default function ChatList({ users }) {
           <ChatItem
             noBorder={index + 1 === users.length} // Sử dụng index được truyền từ renderItem
             router={router}
+            currentUser={currentUser}
             item={item}
             index={index}
           />

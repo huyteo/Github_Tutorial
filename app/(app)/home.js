@@ -37,7 +37,7 @@ export default function Home() {
       <StatusBar style='light' />
 
       {users.length > 0 ? (
-        <ChatList users={users} />
+        <ChatList currentUser = {user} users={users} />
       ) : (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', top: hp(30) }}>
           <ActivityIndicator size="large" />
