@@ -5,12 +5,16 @@ import { StatusBar } from 'expo-status-bar';
 import ChatRoomHeader from '../../components/ChatRoomHeader';
 import MessageList from '../../components/MessageList';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { Feather } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 import CustomeKeyboardView from '../../components/CustomeKeyboardView';
 import { useAuth } from '../context/authContext';
 import { getRoomId } from '../../utils/common';
 import { Timestamp, addDoc, collection, doc, onSnapshot, orderBy, query, setDoc, snapshotEqual } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import * as ImagePicker from 'expo-image-picker'
+import { firebase } from '../firebaseConfig' 
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { launchImageLibraryAsync } from 'expo-image-picker';
 
 
 export default function ChatRoom() {
@@ -21,7 +25,8 @@ export default function ChatRoom() {
     const textRef = useRef('');
     const inputRef = useRef(null);
     const scrollViewRef = useRef(null);
-;
+    const [image, setImage] = useState(null);
+    const [uploading, setUploading] = useState(false); 
 
     useEffect(()=>{
       createRoomIfNotExists();
@@ -68,30 +73,72 @@ export default function ChatRoom() {
       });
     }
 
-    const handleSendMessage = async ()=>{
+    const handleSendMessage = async () => {
       let message = textRef.current.trim();
-      if(!message) return;
+      const hasText = message !== '';
+      const hasImage = !!image;
+  
+      if (!hasImage && !hasText) return;
+  
       try {
           let roomId = getRoomId(user?.userId, item?.userId);
           const docRef = doc(db, 'rooms', roomId);
           const messagesRef = collection(docRef, "messages");
           textRef.current = "";
-          if(inputRef) inputRef?.current?.clear();
-
-          const newDoc = await addDoc(messagesRef, {
-            userId: user?.userId,
-            text: message,
-            profileUrl: user?.profileUrl,
-            senderName: user?.username,
-            createAt: Timestamp.fromDate(new Date())
-          });
-             
-          // console.log('new message id: ', newDoc.id);
-
+          if (inputRef) inputRef?.current?.clear();
+  
+          let newMessageData = {
+              userId: user?.userId,
+              profileUrl: user?.profileUrl,
+              senderName: user?.username,
+              createAt: Timestamp.fromDate(new Date())
+          };
+  
+          if (hasImage) {
+              setUploading(true);
+              const response = await fetch(image.uri); // Lấy dữ liệu từ URI ảnh
+              const blob = await response.blob(); // Chuyển đổi dữ liệu thành blob
+              const filename = image.uri.substring(image.uri.lastIndexOf('/') + 1); // Lấy tên file ảnh
+              const storage = getStorage();
+              const storageRef = ref(storage, filename);
+  
+              try {
+                  await uploadBytes(storageRef, blob); // Tải ảnh lên Firebase Storage
+                  const downloadURL = await getDownloadURL(storageRef); // Lấy URL tải xuống
+                  newMessageData.imageUrl = downloadURL; // Thêm URL ảnh vào dữ liệu tin nhắn
+              } catch (e) {
+                  console.log("Error uploading image:", e);
+              } finally {
+                  setUploading(false);
+                  setImage(null); 
+              }
+          }
+  
+          if (hasText) {
+              newMessageData.text = message; 
+          }
+  
+          const newDoc = await addDoc(messagesRef, newMessageData);
+  
       } catch (err) {
           Alert.alert('Message', err.message);
       }
+  };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1
+    });
+  
+    // Kiểm tra xem người dùng đã chọn ảnh hay chưa
+    if (!result.canceled) { 
+      const source = { uri: result.assets[0].uri }; 
+      setImage(source); // Cập nhật trạng thái image
     }
+  };
 
 
   return (
@@ -113,6 +160,9 @@ export default function ChatRoom() {
                         style={{fontSize: hp(2)}}
                         className="flex-1 mr-2"
                         />
+                         <TouchableOpacity onPress={pickImage} className="bg-neutral-200 p-2 mr-[1px] rounded-full">
+                            <AntDesign name='upload' size={hp(2.7)} color={'#737373'} />
+                        </TouchableOpacity>
                         <TouchableOpacity onPress={handleSendMessage} className="bg-neutral-200 p-2 mr-[1px] rounded-full" >
                             <Feather name='send' size={hp(2.7)} color={'#737373'} />
                         </TouchableOpacity>

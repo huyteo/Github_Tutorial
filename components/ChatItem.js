@@ -42,15 +42,26 @@ export default function ChatItem({ item, router, noBorder, currentUser }) {
 
   } 
 
-  const renderLastMessage = ()=>{
-    if(typeof lastMessage == 'undefined') return 'Loading...';
-    if(lastMessage){
-        if(currentUser?.userId == lastMessage?.userId) return "You: "+lastMessage?.text;
-        return lastMessage?.text;
-    }else{
+  const renderLastMessage = () => {
+    if (typeof lastMessage === 'undefined') return 'Loading...';
+    if (lastMessage) {
+      if (currentUser?.userId === lastMessage?.userId) {
+        if (lastMessage?.imageUrl) { // Kiểm tra xem có URL hình ảnh hay không
+          return "Bạn đã gửi một ảnh";
+        } else {
+          return "You: " + lastMessage?.text;
+        }
+      } else {
+        if (lastMessage?.imageUrl) { // Kiểm tra xem có URL hình ảnh hay không
+          return "Đã gửi một ảnh"; // Hoặc bạn có thể hiển thị tên người gửi
+        } else {
+          return lastMessage?.text;
+        }
+      }
+    } else {
       return 'Say Hi :)';
     }
-  }
+  };
 
 return (
 <TouchableOpacity onPress={openChatRoom} className={`flex-row justify-between mx-4 items-center gap-3 mb-4 pb-2 ${noBorder? '': 'border-b border-neutral-200'}`}>
