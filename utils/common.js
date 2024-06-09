@@ -14,3 +14,13 @@ export const formatDate = date=>{
     var formattedDate = day + ' ' + month;
     return formattedDate;
 }
+export const sortUsersByLastMessageTime = (users) => {
+    return users.sort((a, b) => {
+        const lastMessageA = a.messages[a.messages.length - 1];
+        const lastMessageB = b.messages[b.messages.length - 1];
+
+        if (!lastMessageA || !lastMessageB) return 0;
+
+        return lastMessageB.createAt.toDate() - lastMessageA.createAt.toDate();
+    });
+}

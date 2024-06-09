@@ -77,35 +77,41 @@ export default function ChatRoom() {
       let message = textRef.current.trim();
       const hasText = message !== '';
       const hasImage = !!image;
-  
+    
       if (!hasImage && !hasText) return;
-  
+    
       try {
           let roomId = getRoomId(user?.userId, item?.userId);
           const docRef = doc(db, 'rooms', roomId);
           const messagesRef = collection(docRef, "messages");
           textRef.current = "";
           if (inputRef) inputRef?.current?.clear();
-  
+    
+          const now = new Date();
+          const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
+          const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    
           let newMessageData = {
               userId: user?.userId,
               profileUrl: user?.profileUrl,
               senderName: user?.username,
-              createAt: Timestamp.fromDate(new Date())
+              createAt: Timestamp.fromDate(now),
+              dayOfWeek,
+              time
           };
-  
+    
           if (hasImage) {
               setUploading(true);
-              const response = await fetch(image.uri); // Lấy dữ liệu từ URI ảnh
-              const blob = await response.blob(); // Chuyển đổi dữ liệu thành blob
-              const filename = image.uri.substring(image.uri.lastIndexOf('/') + 1); // Lấy tên file ảnh
+              const response = await fetch(image.uri); 
+              const blob = await response.blob(); 
+              const filename = image.uri.substring(image.uri.lastIndexOf('/') + 1);
               const storage = getStorage();
               const storageRef = ref(storage, filename);
-  
+    
               try {
-                  await uploadBytes(storageRef, blob); // Tải ảnh lên Firebase Storage
-                  const downloadURL = await getDownloadURL(storageRef); // Lấy URL tải xuống
-                  newMessageData.imageUrl = downloadURL; // Thêm URL ảnh vào dữ liệu tin nhắn
+                  await uploadBytes(storageRef, blob); 
+                  const downloadURL = await getDownloadURL(storageRef); 
+                  newMessageData.imageUrl = downloadURL;
               } catch (e) {
                   console.log("Error uploading image:", e);
               } finally {
@@ -113,17 +119,17 @@ export default function ChatRoom() {
                   setImage(null); 
               }
           }
-  
+    
           if (hasText) {
               newMessageData.text = message; 
           }
-  
+    
           const newDoc = await addDoc(messagesRef, newMessageData);
-  
+    
       } catch (err) {
           Alert.alert('Message', err.message);
       }
-  };
+    };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -161,10 +167,10 @@ export default function ChatRoom() {
                         className="flex-1 mr-2"
                         />
                          <TouchableOpacity onPress={pickImage} className="bg-neutral-200 p-2 mr-[1px] rounded-full">
-                            <AntDesign name='upload' size={hp(2.7)} color={'#737373'} />
+                            <AntDesign name='link' size={hp(2.7)} color={'#3399FF'} />
                         </TouchableOpacity>
                         <TouchableOpacity onPress={handleSendMessage} className="bg-neutral-200 p-2 mr-[1px] rounded-full" >
-                            <Feather name='send' size={hp(2.7)} color={'#737373'} />
+                            <Feather name='send' size={hp(2.7)} color={'#6699FF'} />
                         </TouchableOpacity>
                   </View>
               </View>
