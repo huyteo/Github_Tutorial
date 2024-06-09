@@ -4,6 +4,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
+import { AntDesign } from "@expo/vector-icons";
 
 const FullScreenImageModal = ({ visible, imageUrl, onClose }) => {
   return (
@@ -11,7 +12,7 @@ const FullScreenImageModal = ({ visible, imageUrl, onClose }) => {
       <TouchableOpacity style={styles.container} onPress={onClose}>
         <Image source={{ uri: imageUrl }} style={styles.image} />
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-          {/* Đây có thể là một biểu tượng X hoặc nút Back */}
+          <AntDesign name="closecircle" size={hp(3)} color="white" />
         </TouchableOpacity>
       </TouchableOpacity>
     </Modal>
@@ -21,20 +22,22 @@ const FullScreenImageModal = ({ visible, imageUrl, onClose }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.8)",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
   closeButton: {
     position: "absolute",
     top: hp(2),
     right: wp(2),
     zIndex: 1,
-    // Thiết kế nút đóng modal tại đây
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: hp(1),
+    borderRadius: 50,
   },
   image: {
-    width: wp(100),
-    height: hp(100),
+    width: wp(90),
+    height: hp(70),
     resizeMode: "contain",
   },
 });

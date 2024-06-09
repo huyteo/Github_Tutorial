@@ -13,6 +13,7 @@ import { Timestamp, addDoc, collection, doc, onSnapshot, orderBy, query, setDoc 
 import { db } from '../firebaseConfig';
 import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import FullScreenImageModal from '../../components/FullScreenImageModal';
 
 export default function ChatRoom() {
     const item = useLocalSearchParams(); // second user
@@ -24,6 +25,7 @@ export default function ChatRoom() {
     const scrollViewRef = useRef(null);
     const [image, setImage] = useState(null);
     const [uploading, setUploading] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
         createRoomIfNotExists();
@@ -155,7 +157,7 @@ export default function ChatRoom() {
                 <View className="h-3 border-b border-neutral-300" />
                 <View className="flex-1 justify-between bg-neutral-100 overflow-visible">
                     <View className="flex-1">
-                        <MessageList scrollViewRef={scrollViewRef} messages={messages} currentUser={user} roomId={getRoomId(user?.userId, item?.userId)} />
+                        <MessageList setSelectedImage={setSelectedImage} scrollViewRef={scrollViewRef} messages={messages} currentUser={user} roomId={getRoomId(user?.userId, item?.userId)} />
                     </View>
                     <View style={{ marginBottom: hp(1.7) }} className="pt-2">
                         <View className="flex-row mx-3 justify-between bg-white border p-2 border-neutral-300 rounded-full pl-5" >
@@ -175,6 +177,11 @@ export default function ChatRoom() {
                         </View>
                     </View>
                 </View>
+                <FullScreenImageModal
+                    visible={!!selectedImage}
+                    imageUrl={selectedImage}
+                    onClose={() => setSelectedImage(null)}
+                  />
             </View>
         </CustomeKeyboardView>
     );
