@@ -6,6 +6,8 @@ import {getReactNativePersistence, initializeAuth} from 'firebase/auth';
 // Your web app's Firebase configuration
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {getFirestore, collection} from 'firebase/firestore'
+
+
 const firebaseConfig = {
   apiKey: "AIzaSyDaT4EK1Th9Z3PNqLu3AE-SOxnkIzb4phU",
   authDomain: "fir-chat-fe488.firebaseapp.com",

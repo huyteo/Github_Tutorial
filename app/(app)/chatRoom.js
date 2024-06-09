@@ -73,45 +73,52 @@ export default function ChatRoom() {
       });
     }
 
+    const getCurrentDateTime = () => {
+      const now = new Date();
+      const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
+      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+      return { dayOfWeek, time };
+    };
+
     const handleSendMessage = async () => {
       let message = textRef.current.trim();
       const hasText = message !== '';
       const hasImage = !!image;
-    
+  
       if (!hasImage && !hasText) return;
-    
+  
       try {
           let roomId = getRoomId(user?.userId, item?.userId);
           const docRef = doc(db, 'rooms', roomId);
           const messagesRef = collection(docRef, "messages");
           textRef.current = "";
           if (inputRef) inputRef?.current?.clear();
-    
-          const now = new Date();
-          const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
-          const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    
+  
+          const { dayOfWeek, time } = getCurrentDateTime(); // Lấy thời gian và ngày hiện tại
+  
           let newMessageData = {
               userId: user?.userId,
               profileUrl: user?.profileUrl,
               senderName: user?.username,
-              createAt: Timestamp.fromDate(now),
-              dayOfWeek,
-              time
+              createAt: Timestamp.fromDate(new Date()),
+              dayOfWeek, // Thêm thông tin ngày vào dữ liệu tin nhắn mới
+              time // Thêm thông tin thời gian vào dữ liệu tin nhắn mới
           };
-    
+          
+  
           if (hasImage) {
               setUploading(true);
-              const response = await fetch(image.uri); 
-              const blob = await response.blob(); 
-              const filename = image.uri.substring(image.uri.lastIndexOf('/') + 1);
+              const response = await fetch(image.uri); // Lấy dữ liệu từ URI ảnh
+              const blob = await response.blob(); // Chuyển đổi dữ liệu thành blob
+              const filename = image.uri.substring(image.uri.lastIndexOf('/') + 1); // Lấy tên file ảnh
               const storage = getStorage();
               const storageRef = ref(storage, filename);
-    
+
               try {
-                  await uploadBytes(storageRef, blob); 
-                  const downloadURL = await getDownloadURL(storageRef); 
-                  newMessageData.imageUrl = downloadURL;
+                  await uploadBytes(storageRef, blob); // Tải ảnh lên Firebase Storage
+                  const downloadURL = await getDownloadURL(storageRef); // Lấy URL tải xuống
+                  newMessageData.imageUrl = downloadURL; // Thêm URL ảnh vào dữ liệu tin nhắn
               } catch (e) {
                   console.log("Error uploading image:", e);
               } finally {
@@ -119,17 +126,17 @@ export default function ChatRoom() {
                   setImage(null); 
               }
           }
-    
+  
           if (hasText) {
               newMessageData.text = message; 
           }
-    
+  
           const newDoc = await addDoc(messagesRef, newMessageData);
-    
+  
       } catch (err) {
           Alert.alert('Message', err.message);
       }
-    };
+  };
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -179,3 +186,4 @@ export default function ChatRoom() {
     </CustomeKeyboardView>
   )
 }
+

@@ -6,6 +6,39 @@ import { db } from '../app/firebaseConfig';
 
 export default function MessageItem({ message, currentUser, roomId }) { 
 
+  const handleLongPress = () => {
+    Alert.alert(
+      "Delete Message",
+      "Are you sure you want to delete this message?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          onPress: () => deleteMessage()
+        }
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const deleteMessage = async () => {
+    try {
+      await deleteDoc(doc(db, "rooms", roomId, "messages", message.id));
+      Alert.alert("Message deleted successfully");
+    } catch (error) {
+      console.error("Error deleting message: ", error);
+      Alert.alert("Failed to delete message");
+    }
+  };
+  const getMessageTimestamp = (timestamp) => {
+    const date = new Date(timestamp.seconds * 1000); // Convert timestamp to milliseconds
+    const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return `${dayOfWeek}, ${time}`;
+  };
 
   if (currentUser?.userId === message?.userId) {
     // My message
@@ -28,6 +61,13 @@ export default function MessageItem({ message, currentUser, roomId }) {
                 />
               </View>
             )}
+             {message?.createAt && (
+          <View style={{ marginTop: hp(1) }}>
+            <Text style={{ fontSize: hp(1.5), color: 'grey', textAlign: 'center' }}>
+              {getMessageTimestamp(message.createAt)}
+            </Text>
+          </View>
+        )}
             </TouchableOpacity>
           </View>
         </View>
